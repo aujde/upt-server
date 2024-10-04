@@ -8,6 +8,7 @@ const sessionMessages = require('./middleware/sessionMessages');
 const authMiddleware = require('./middleware/auth');
 const indexRoutes = require('./routes/index');
 const adminRoutes = require('./routes/admin');
+const testRoutes = require('./routes/test');
 const { hashPassword } = require('./utils/auth');
 
 app.set('view engine', 'ejs');
@@ -25,6 +26,7 @@ app.use(authMiddleware);
 
 app.use('/', indexRoutes);
 app.use('/', adminRoutes);
+app.use('/', testRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
