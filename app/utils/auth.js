@@ -4,7 +4,7 @@ const { connectToMongo } = require('./db');
 const saltRounds = 10;
 
 async function hashPassword(password) {
-    return bcrypt.hash(password, saltRounds);
+    return bcrypt.hash(password + process.env.SALT, saltRounds);
 }
 
 async function authenticate(name, pass, fn) {
@@ -14,7 +14,7 @@ async function authenticate(name, pass, fn) {
             username: name
         });
 
-        if (user && await bcrypt.compare(pass, user.password)) {
+        if (user && await bcrypt.compare(pass + process.env.SALT, user.password)) {
             fn(null, user);
         } else {
             fn(new Error('Invalid username or password'));

@@ -16,6 +16,7 @@
     "express": "^4.21.0",
     "express-session": "^1.18.0",
     "mongodb": "^6.9.0",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "seedrandom": "^3.0.5"
   }
 }
