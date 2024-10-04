@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const express = require('express');
 const session = require('express-session');
+const path = require('path');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const app = express();
 
@@ -12,6 +13,19 @@ app.use(session({
     resave: false,
     saveUninitialized: false
 }));
+
+// Session-persisted message middleware
+
+app.use(function(req, res, next){
+    var err = req.session.error;
+    var msg = req.session.success;
+    delete req.session.error;
+    delete req.session.success;
+    res.locals.message = '';
+    if (err) res.locals.message = '<p class="msg error">' + err + '</p>';
+    if (msg) res.locals.message = '<p class="msg success">' + msg + '</p>';
+    next();
+  });
 
 const PORT = process.env.PORT || 3000;
 const uri = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_SERVER}`;
@@ -24,8 +38,52 @@ const client = new MongoClient(uri, {
     }
 });
 
+/**/
+
+function hashPassword(password) {
+    const hash = require('pbkdf2-password')();
+    const salt = process.env.SALT || 'defaultsalt';
+
+    return new Promise((resolve, reject) => {
+        hash({ password: password, salt: salt }, function (err, pass, salt, hash) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(hash);
+            }
+        });
+    });
+}
+
+function authenticate(name, pass, fn) {
+
+}
+
+/**/
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
+
+});
+
+app.get('/', (req, res) => {
+    res.render('login');
+});
+
+app.post('/login', function (req, res, next) {
+    const username = req.body.username;
+    const password = req.body.password;
+
+    if (username && password) {
+        hashPassword(password).then(hash => {
+            console.log('Hashed password:', hash);
+        }).catch(err => {
+            console.error('Error hashing password:', err);
+        });
+    } else {
+        req.session.error = 'Authentication failed, please check your username and password.';
+        res.redirect('/');
+    }
 });
 
 app.get('/status', (req, res) => {
