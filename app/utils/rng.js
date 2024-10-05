@@ -1,4 +1,4 @@
-const seedrandom = require('seedrandom'); // Ensure seedrandom is imported correctly
+const seedrandom = require('seedrandom');
 
 class RNG {
     constructor(req, key) {
