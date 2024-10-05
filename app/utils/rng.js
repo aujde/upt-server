@@ -16,33 +16,17 @@ class RNG {
 
             console.log(`Generated new state for key ${key}: ${this.seed}`);
         } else {
-            this.stateData = this.req.session.rng[this.key];
-            this.seed = this.stateData.seed;
-
-            var temprng = new seedrandom(this.seed, { state: true });
-            var state = temprng.state();
-            state.i = this.stateData.i;
-            state.j = this.stateData.j;
-
-            this.rng = new seedrandom("", { state: state });
-
-            console.log(`Loaded existing state for key ${key}: ${this.stateData.seed}, ${this.stateData.i}, ${this.stateData.j}`);
+            this.rng = new seedrandom("", { state: this.req.session.rng[this.key] });
+            console.log(`Loaded existing state for key ${key}`);
         }
     }
 
     commitState() {
-        var state = this.rng.state();
-        this.stateData = {
-            seed: this.seed,
-            i: state.i,
-            j: state.j
-        };
-        console.log(`Committing state for key ${this.key}: ${this.stateData.seed}, ${this.stateData.i}, ${this.stateData.j}`);
-        this.req.session.rng[this.key] = this.stateData;
+        this.req.session.rng[this.key] = this.rng.state();
     }
 
     getState() {
-        return this.stateData;
+        return this.req.session.rng[this.key];
     }
 
     random() {

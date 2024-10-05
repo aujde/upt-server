@@ -5,14 +5,8 @@ document.getElementById('state').addEventListener('click', () => {
     fetch('/api/rngstate?key=test')
         .then(response => response.json())
         .then(data => {
-            
-            var temprng = new Math.seedrandom(data.seed, { state: true });
-            var state = temprng.state();
 
-            state.i = data.i;
-            state.j = data.j;
-
-            rng = new Math.seedrandom("", { state: state });
+            rng = new Math.seedrandom("", { state: data });
             console.log("seedrandom created with state",rng.state());
 
         })
