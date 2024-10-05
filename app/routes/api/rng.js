@@ -2,9 +2,6 @@ const express = require('express');
 const router = express.Router();
 const seedrandom = require('seedrandom');
 
-const lzstring = require('lz-string');
-const fastintcompression = require('fastintcompression');
-
 function generateRandomString(length) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
@@ -14,43 +11,81 @@ function generateRandomString(length) {
     return result;
 }
 
-function getSeed(req) {
-    if (!req.session.seed) {
-        const seed = generateRandomString(7);
-        req.session.seed = seed;
+// class RNG:
+// - accept 'key' to indicate the relevant sequence
+// - check user session for existing state for key
+// - if no state, generate new state and store in session
+// - create seedrandom object with state
+// - return random number or series of numbers along with seed and i, j values from state
+// - read state from seedrandom object and store in session
+class RNG {
+    constructor(req, key) {
+        this.req = req;
+        this.key = key;
+
+        if (!this.req.session.rng) {
+            this.req.session.rng = {};
+        }
+
+        if (!this.req.session.rng[this.key]) {
+            this.seed = generateRandomString(7) + Date.now();
+            this.rng = seedrandom(this.seed, { state: true });
+            this.commitState();
+
+            console.log(`Generated new state for key ${key}: ${this.seed}`);
+        } else {
+            this.stateData = this.req.session.rng[this.key];
+            this.seed = this.stateData.seed;
+
+            var temprng = new seedrandom(this.seed, { state: true });
+            var state = temprng.state();
+            state.i = this.stateData.i;
+            state.j = this.stateData.j;
+
+            this.rng = new seedrandom("", { state: state });
+
+            console.log(`Loaded existing state for key ${key}: ${this.stateData.seed}`);
+        }
     }
-    return req.session.seed;
+
+    commitState() {
+        var state = this.rng.state();
+        this.stateData = {
+            seed: this.seed,
+            i: state.i,
+            j: state.j,
+            S: state.S
+        };
+        this.req.session.rng[this.key] = this.stateData;
+    }
+
+    getState() {
+        return this.stateData;
+    }
+
+    random() {
+        const number = this.rng();
+        this.commitState();
+        return number;
+    }
 }
 
-router.get('/seed', (req, res) => {
-    const seed = getSeed(req);
-    res.json({ seed: seed });
+router.get('/rngstate', (req, res) => {
+    const key = req.query.key || 'default';
+    const rng = new RNG(req, key);
+
+    res.json(rng.getState());
 });
 
-router.get('/rng', (req, res) => {
-    const seed = getSeed(req);
-    const rng = seedrandom(seed, { state: true });
-    console.log(rng());
-    console.log(rng());
-    console.log(rng());
-    const rngState = rng.state();
-    console.log(rngState);
-    console.log(rngState.S);
-    
-    const compressed = fastintcompression.compress(rngState.S);
-    const buffer = new Uint8Array(compressed).buffer;
-    const string = lzstring.compressToEncodedURIComponent(String.fromCharCode.apply(null, new Uint8Array(buffer)));
-    
-    console.log(compressed);
-    console.log(string);
-    console.log(string.length);
-    
-    const rngStateString = JSON.stringify(rng.state());
-    const objCompressed = lzstring.compressToEncodedURIComponent(rngStateString);
-    console.log(objCompressed);
-    console.log(objCompressed.length);
+router.get('/genten', (req, res) => {
+    const key = req.query.key || 'default';
+    const rng = new RNG(req, key);
 
-    res.json({ seed: req.session.seed });
+    var numbers = [];
+    for (let i = 0; i < 10; i++) {
+        numbers.push(rng.random());
+    }
+    res.json(numbers);
 });
 
 module.exports = router;
