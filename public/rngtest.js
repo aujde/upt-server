@@ -40,6 +40,8 @@ document.getElementById('next').addEventListener('click', () => {
             var number = rng();
             string += number + " ";
         }
+        var state = rng.state();
+        console.log("state",state);
         console.log(string);
     } else {
         console.warn("No RNG state loaded");
