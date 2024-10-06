@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const seedrandom = require('seedrandom');
 const RNG = require('../../utils/rng'); 
 
 router.get('/rngstate', (req, res) => {

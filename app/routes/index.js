@@ -3,11 +3,11 @@ const router = express.Router();
 const { authenticate } = require('../utils/auth');
 
 router.get('/', (req, res) => {
-    res.render('login');
+    res.render('index');
 });
 
 router.get('/login', (req, res) => {
-    res.render('login');
+    res.render('admin/login');
 });
 
 router.post('/login', (req, res) => {
