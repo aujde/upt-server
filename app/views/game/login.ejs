@@ -8,7 +8,9 @@
   </head>
   <body>
     <main>
-      
+      <h1>UPT 2</h1>
+      <%- message %>
+      <h2>Login</h2>
       <form method="post" action="/login">
         <p>
           <label for="username">Username:</label>
@@ -20,6 +22,24 @@
         </p>
         <p>
           <input type="submit" value="Login">
+        </p>
+      </form>
+      <h2>New User</h2>
+      <form method="post" action="/register">
+        <p>
+          <label for="username">Username:</label>
+          <input type="text" name="username" id="username">
+        </p>
+        <p>
+          <label for="password">Password:</label>
+          <input type="text" name="password" id="password">
+        </p>
+        <p>
+          <label for="password2">Repeat Password:</label>
+          <input type="text" name="password2" id="password2">
+        </p>
+        <p>
+          <input type="submit" value="Register">
         </p>
       </form>
     </main>
