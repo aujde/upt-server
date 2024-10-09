@@ -7,19 +7,21 @@ router.get('/', (req, res) => {
     res.render('game/login');
 });
 
+router.get('/game', (req, res) => {
+    res.render('game/game', { user: req.session.user });
+});
+
 router.post('/login', (req, res) => {
     const { username, password } = req.body;
-    authenticate(username, password, (err, user) => {
-        if (err) {
-            req.session.error = err.message;
-            console.log('user failed to authenticate as admin: ', err);
-            res.redirect('/admin/login');
-        } else {
-            req.session.userAdmin = user;
-            console.log('user authenticated as admin: ', user);
-            req.session.success = 'Authenticated as ' + user.username;
-            res.redirect('/admin');
-        }
+    console.log('logging in user:', username);
+    const user = new GameUser();
+    user.login(username, password).then(user => {
+        req.session.success = 'Logged in as ' + user.username;
+        req.session.user = user;
+        res.redirect('/game');
+    }).catch(err => {
+        req.session.error = err.message;
+        res.redirect('/');
     });
 });
 
@@ -29,7 +31,8 @@ router.post('/register', (req, res) => {
     const user = new GameUser();
     user.register(username, password, password2).then(() => {
         req.session.success = 'Registered as ' + username;
-        res.redirect('/');
+        req.session.user = user;
+        res.redirect('/game');
     }).catch(err => {
         req.session.error = err.message;
         res.redirect('/');

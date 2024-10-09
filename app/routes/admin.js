@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { authenticateAdmin } = require('../utils/auth');
+const AdminUser = require('../entity/adminuser');
 
 router.get('/', (req, res) => {
-    res.render('admin/admin', { user: req.session.user });
+    res.render('admin/admin', { user: req.session.admin });
 });
 
 router.get('/login', (req, res) => {
@@ -12,32 +12,26 @@ router.get('/login', (req, res) => {
 
 router.post('/login', (req, res) => {
     const { username, password } = req.body;
-    authenticateAdmin(username, password, (err, user) => {
-        if (err) {
-            req.session.error = err.message;
-            console.log('user failed to authenticate as admin: ', err);
-            res.redirect('/admin/login');
-        } else {
-            req.session.userAdmin = user;
-            console.log('user authenticated as admin: ', user);
-            req.session.success = 'Authenticated as ' + user.username;
-            res.redirect('/admin');
-        }
+    console.log('logging in admin:', username);
+    const user = new AdminUser();
+    user.login(username, password).then(user => {
+        req.session.success = 'Logged in as ' + user.username;
+        req.session.admin = user;
+        res.redirect('/admin');
+    }).catch(err => {
+        req.session.error = err.message;
+        res.redirect('/admin/login');
     });
 });
 
 router.get('/logout', (req, res) => {
     req.session.destroy(() => {
-        res.redirect('/');
+        res.redirect('/admin/login');
     });
 });
 
-router.get('/tests', (req, res) => {
-    res.render('tests/index');
-});
-
-router.get('/tests/rngseed', (req, res) => {
-    res.render('tests/rngseed');
+router.get('/rngseed', (req, res) => {
+    res.render('admin/rngseed');
 });
 
 module.exports = router;

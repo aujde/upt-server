@@ -1,6 +1,10 @@
 <%- include('header', { title: 'UPT Admin' }) -%>
 
 <h1>Admin</h1>
-<p>Admin page!</p>
+<p>Admin account: <%= user.username %></p>
+<ul>
+    <li><a href="/admin/rngseed">RNG Seed test</a></li>
+    <li><a href="/admin/logout">Logout</a></li>
+</ul>
 
 <%- include('footer') -%>
