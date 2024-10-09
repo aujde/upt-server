@@ -8,7 +8,11 @@ router.get('/', (req, res) => {
 });
 
 router.get('/game', (req, res) => {
-    res.render('game/game', { user: req.session.user });
+    if (!req.session.user) {
+        res.redirect('/');
+    } else {
+        res.render('game/game', { user: req.session.user });
+    }
 });
 
 router.post('/login', (req, res) => {

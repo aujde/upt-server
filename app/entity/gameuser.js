@@ -23,9 +23,31 @@ class GameUser {
         await MongoDB.insertOne(process.env.MONGODB_TABLE_GAMEUSERS, { username: username, password: hashedPassword });
     }
 
+    async load(username) {
+        const user = await MongoDB.find(process.env.MONGODB_TABLE_GAMEUSERS, { username: username });
+        if (user.length > 0) {
+            this.loadData(user[0]);
+        }
+    }
+
     loadData(data) {
         this.username = data.username;
-        this.password = data.password;
+        this.state = data.state;
+        if (!this.state) {
+            this.state = {};
+        }
+        
+        for (const key in this.newUserState) {
+            if (!(key in this.state)) {
+                this.state[key] = this.newUserState[key];
+            }
+        }
+    }
+
+    newUserState = {
+        currentAction: 0,
+        inventory: {},
+        money: 0
     }
 }
 
