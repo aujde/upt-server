@@ -6,12 +6,9 @@ const fs = require('fs');
 const app = express();
 
 const sessionMessages = require('./middleware/sessionMessages');
-const authMiddleware = require('./middleware/auth');
+const authAdminMiddleware = require('./middleware/adminAuth');
 const indexRoutes = require('./routes/index');
 const adminRoutes = require('./routes/admin');
-const testRoutes = require('./routes/test');
-
-const { hashPassword } = require('./utils/auth');
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -25,11 +22,10 @@ app.use(session({
 
 app.use(sessionMessages);
 app.use(express.static(path.join(__dirname, '../public')));
-app.use(authMiddleware);
+app.use(authAdminMiddleware);
 
 app.use('/', indexRoutes);
-app.use('/', adminRoutes);
-app.use('/', testRoutes);
+app.use('/admin', adminRoutes);
 
 // Dynamically include all route files in the /routes/api/ directory
 const apiRoutesPath = path.join(__dirname, 'routes', 'api');

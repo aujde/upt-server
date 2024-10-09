@@ -27,7 +27,7 @@ class MongoDB {
 
     async getCollection(collectionName) {
         const client = await connectToMongo();
-        return client.db().collection(collectionName);
+        return client.db(process.env.MONGODB_DATABASE).collection(collectionName);
     }
 
     async find(collectionName, query) {

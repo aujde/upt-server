@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const { connectToMongo } = require('./db');
+const MongoDB = require('./db');
 
 const saltRounds = 10;
 
@@ -7,15 +7,12 @@ async function hashPassword(password) {
     return bcrypt.hash(password + process.env.SALT, saltRounds);
 }
 
-async function authenticate(name, pass, fn) {
+async function authenticateAdmin(name, pass, fn) {
     try {
-        const client = await connectToMongo();
-        const user = await client.db(process.env.MONGODB_DATABASE).collection(process.env.MONGODB_TABLE_ADMINUSERS).findOne({ 
-            username: name
-        });
-
-        if (user && await bcrypt.compare(pass + process.env.SALT, user.password)) {
-            fn(null, user);
+        const user = await MongoDB.find(process.env.MONGODB_TABLE_ADMINUSERS, { username: name });
+        console.log('user:', user, name, pass);
+        if (user.length > 0 && await bcrypt.compare(pass + process.env.SALT, user[0].password)) {
+            fn(null, user[0]);
         } else {
             fn(new Error('Invalid username or password'));
         }
@@ -25,4 +22,4 @@ async function authenticate(name, pass, fn) {
     }
 }
 
-module.exports = { hashPassword, authenticate };
+module.exports = { authenticateAdmin };
