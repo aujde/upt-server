@@ -1,6 +1,5 @@
 public/vendor/
 app.yaml
-startup-script-google.sh
 
 # Node.js dependencies
 node_modules/
