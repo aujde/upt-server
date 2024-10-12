@@ -31,13 +31,13 @@ router.post('/setAction', (req, res) => {
     const user = new GameUser();
     user.load(req.session.user.username).then(() => {
         // Create new action state
-        user.state.ca = {
-            index: req.body.action,
-            subaction: req.body.subAction,
-            seed: `${req.body.action}${req.body.subAction}${Date.now()}${generateRandomString(6)}`,
-            state: null,
-            start: Date.now()
-        };
+        var newSeed = `${req.body.action}${req.body.subAction}${Date.now()}${generateRandomString(6)}`;
+        user.state.ca.index = req.body.action;
+        user.state.ca.subaction = req.body.subAction;
+        user.state.ca.seed = newSeed;
+        user.state.ca.rngState = newSeed;
+        user.state.ca.start = Date.now();
+        user.state.ca.loot = {};
 
         // Update user state
         user.update().then(() => {

@@ -52,8 +52,9 @@ class GameUser {
         ca: {
             index: 0,
             seed: null,
-            state: null,
-            start: null
+            rngState: null,
+            start: null,
+            loot: {}
         },
         inventory: {}
     }
