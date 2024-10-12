@@ -4,11 +4,13 @@ const GameUser = require('../../entity/gameuser');
 const Looter = require('../../looter');
 
 function isActionValid(action) {
-    return [1,2].includes(action);
+    return [0,1,2].includes(action);
 }
 
 function isSubActionValid(action, subAction) {
-    if (action === 1) {
+    if (action === 0) {
+        return true;
+    } else if (action === 1) {
         return [1,2].includes(subAction);
     } else if (action === 2) {
         return [1,2].includes(subAction);
@@ -53,11 +55,13 @@ router.post('/setAction', (req, res) => {
             for (var cycle = 0; cycle < elapsedCycles; cycle++) {
                 var loot;
                 [loot, user.state.ca.rngState] = looter.rollLoot(user.state.ca.index, user.state.ca.subaction, user.state, user.state.ca.rngState, cycle);
-                for (var key in loot) {
-                    if (user.state.inventory[key]) {
-                        user.state.inventory[key] += loot[key];
-                    } else {
-                        user.state.inventory[key] = loot[key];
+                if (loot) {
+                    for (var key in loot) {
+                        if (user.state.inventory[key]) {
+                            user.state.inventory[key] += loot[key];
+                        } else {
+                            user.state.inventory[key] = loot[key];
+                        }
                     }
                 }
             }

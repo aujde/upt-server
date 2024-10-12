@@ -26,6 +26,9 @@ class ClientGame {
             if (this.state.ca.index == 0) { return; }
             var timeSinceStart = Date.now() - this.state.ca.start;
             var cyclesSoFar = Math.floor(timeSinceStart / this.state.ca.duration);
+            var cycleProgress = timeSinceStart % this.state.ca.duration;
+            var remainingDuration = this.state.ca.duration - (this.state.ca.duration * (cycleProgress / this.state.ca.duration));
+            this.setProgressBar(remainingDuration, (cycleProgress / this.state.ca.duration) * 100);
             var rng = this.state.ca.seed;
             var loot, caRng;
             [loot, caRng] = looter.calculatePeriod(this.state.ca.index, this.state.ca.subaction, this.state, cyclesSoFar, rng);
@@ -44,10 +47,9 @@ class ClientGame {
 
         var timeSinceStart = Date.now() - this.state.ca.start;
         var cyclesSoFar = Math.floor(timeSinceStart / this.state.ca.duration);
-        var progress = (timeSinceStart % this.state.ca.duration) / this.state.ca.duration;
 
         // if a cycle completed, process the action
-        var timeSinceStart_lastLoop = this.lastTick - this.state.ca.start;
+        var timeSinceStart_lastLoop = Math.max(this.lastTick - this.state.ca.start, 0);
         var cyclesSoFar_lastLoop = Math.floor(timeSinceStart_lastLoop / this.state.ca.duration);
         if (cyclesSoFar_lastLoop < cyclesSoFar) {
             var loot;
@@ -61,20 +63,25 @@ class ClientGame {
                 }
             }
 
-            document.getElementById('cycle-progress-front').style.width = '0%';
-            document.getElementById('cycle-progress-front').style.transition = 'width 0s linear';
+            this.setProgressBar(this.state.ca.duration, 0);
 
             document.getElementById('cycle-count').innerHTML = cyclesSoFar;
             document.getElementById('cycle-loot-a').innerHTML = this.state.ca.loot[1] || 0;
             document.getElementById('cycle-loot-b').innerHTML = this.state.ca.loot[2] || 0;
-            console.log("set progress to 0");
-        } else {
-            document.getElementById('cycle-progress-front').style.width = (progress * 100) + '%';
-            document.getElementById('cycle-progress-front').style.transition = 'width ' + (this.updateInterval / 1000) + 's linear';
-            console.log("set progress to " + (progress * 100) + '%');
         }
-
         this.lastTick = Date.now();
+    }
+
+    setProgressBar(time, startWidth) {
+        var element = document.getElementById('cycle-progress-front');
+        element.style.width = startWidth + '%';
+        element.style.transition = 'width 0s linear';
+
+        // Force reflow
+        element.offsetHeight;
+
+        element.style.width = '100%';
+        element.style.transition = 'width ' + (time / 1000) + 's linear';
     }
 
     setAction(action, subAction) {
@@ -88,16 +95,28 @@ class ClientGame {
             return response.json();
         }).then(data => {
             this.updateState(data.state);
+            this.setProgressBar(this.state.ca.duration, 0);
         });
     }
 
     updateState(newState) {
         console.log("Updating state", newState);
         this.state = newState;
-        document.getElementById('player-action').innerHTML = this.state.ca.index;
+        document.getElementById('player-action').innerHTML = `${this.state.ca.index}-${this.state.ca.subaction}`;
         document.getElementById('action-seed').innerHTML = this.state.ca.seed;
 
-        if (this.state.ca.index == 0) { return;}
+        document.getElementById('total-inventory-a').innerHTML = this.state.inventory[1] || 0;
+        document.getElementById('total-inventory-b').innerHTML = this.state.inventory[2] || 0;
+
+        document.getElementById('cycle-loot-a').innerHTML = 0;
+        document.getElementById('cycle-loot-b').innerHTML = 0;
+        document.getElementById('cycle-progress-front').style.width = '0%';
+        document.getElementById('cycle-count').innerHTML = 0;
+        if (this.state.ca.index == 0) {
+            document.getElementById('player-action').innerHTML = 'Idle';
+            document.getElementById('action-seed').innerHTML = '';
+            return;
+        }
         this.state.ca.duration = looter.getActionDuration(this.state.ca.index, this.state.ca.subaction, this.state);
     }
         
