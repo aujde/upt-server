@@ -30,6 +30,10 @@ class GameUser {
         }
     }
 
+    async update() {
+        await MongoDB.updateOne(process.env.MONGODB_TABLE_GAMEUSERS, { username: this.username }, { $set: { state: this.state } });
+    }
+
     loadData(data) {
         this.username = data.username;
         this.state = data.state;
@@ -45,9 +49,13 @@ class GameUser {
     }
 
     newUserState = {
-        currentAction: 0,
-        inventory: {},
-        money: 0
+        ca: {
+            index: 0,
+            seed: null,
+            state: null,
+            start: null
+        },
+        inventory: {}
     }
 }
 

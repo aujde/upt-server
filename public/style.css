@@ -55,3 +55,17 @@ main {
 .success {
     color: green;
 }
+
+#cycle-progress-back {
+    background-color: #333333;
+    border-radius: 10px;
+    height: 20px;
+    margin: 20px 0;
+    overflow: hidden;
+    width: 200px;
+}
+
+#cycle-progress-front {
+    background-color: #4caf50;
+    height: 100%;
+}

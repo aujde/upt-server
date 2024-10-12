@@ -5,13 +5,36 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>UPT 2 - <%= user.username %></title>
     <link rel="stylesheet" href="/style.css">
-    <script src="/game.js"></script>
+    <script src="/vendor/seedrandom.min.js"></script>
+    <script src="/game.js" type="module"></script>
   </head>
   <body>
     <main>
         <h2>Game</h2>
         <p>Game account: <%= user.username %></p>
         <button id="init">Init game state</button>
+        <div id="game" >
+          <p>Player action: <span id="player-action"></span></p>
+          <p>Action seed: <span id="action-seed"></span></p>
+          <p>Cycle: <div id="cycle-progress-back"><div id="cycle-progress-front" style="width:50%"></div></div></p>
+          <p>Cycle count: <span id="cycle-count"></span></p>
+          <p>Cycle loot - Item A: <span id="cycle-loot-a"></span></p>
+          <p>Cycle loot - Item B: <span id="cycle-loot-b"></span></p>
+          <p>Total inventory - Item A: <span id="total-inventory-a"></span></p>
+          <p>Total inventory - Item B: <span id="total-inventory-b"></span></p>
+          <p>
+            <button id="action-a-1">Start Action A-1 (20000ms, 4 or 5 items per cycle)</button>
+            <button id="action-a-2">Start Action A-2 (10000ms, 2 and then 3 items per cycle)</button>
+          </p>
+          <p>
+            <button id="action-b-1">Start Action B-1 (3000ms, (1+floor(sqrt(cycle_count)) items )</button>
+            <button id="action-b-2">Start Action B-2 (6000ms, 50% 0 items, 49% 1 item, 1% 50 items)</button>
+          </p>
+          <p>
+            <button id="stop">Stop action and loot</button>
+            <button id="check-sync">Check server rng</button>
+          </p>
+        </div>
     </main>
   </body>
 </html>
