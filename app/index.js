@@ -10,12 +10,29 @@ const secretManager = new SecretManager();
 
 async function loadSecrets() {
     try {
-        process.env.SESSION_SECRET = await secretManager.getSecret('UPT2_SESSION_SECRET');
-        process.env.MONGODB_USER = await secretManager.getSecret('UPT2_MONGODB_USER');
-        process.env.MONGODB_PASSWORD = await secretManager.getSecret('UPT2_MONGODB_PASSWORD');
-        process.env.MONGODB_SERVER = await secretManager.getSecret('UPT2_MONGODB_SERVER');
-        process.env.MONGODB_DATABASE = await secretManager.getSecret('UPT2_MONGODB_DATABASE');
-        process.env.SALT = await secretManager.getSecret('UPT2_SALT');
+        if (!process.env.SESSION_SECRET) {
+            process.env.SESSION_SECRET = await secretManager.getSecret('UPT2_SESSION_SECRET');
+        }
+
+        if (!process.env.MONGODB_USER) {
+            process.env.MONGODB_USER = await secretManager.getSecret('UPT2_MONGODB_USER');
+        }
+
+        if (!process.env.MONGODB_PASSWORD) {
+            process.env.MONGODB_PASSWORD = await secretManager.getSecret('UPT2_MONGODB_PASSWORD');
+        }
+
+        if (!process.env.MONGODB_SERVER) {
+            process.env.MONGODB_SERVER = await secretManager.getSecret('UPT2_MONGODB_SERVER');
+        }
+
+        if (!process.env.MONGODB_DATABASE) {
+            process.env.MONGODB_DATABASE = await secretManager.getSecret('UPT2_MONGODB_DATABASE');
+        }
+
+        if (!process.env.SALT) {
+            process.env.SALT = await secretManager.getSecret('UPT2_SALT');
+        }
     } catch (err) {
         console.error('Failed to load secrets:', err.message);
         process.exit(1);

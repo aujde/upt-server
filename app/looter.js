@@ -1,4 +1,4 @@
-var seedrandom = Math.seedrandom;
+const seedrandom = require('seedrandom');
 
 class Looter {
     getActionDuration(action, subAction, state) {
@@ -77,4 +77,4 @@ class Looter {
     }
 }
 
-export default Looter;
+module.exports = Looter;
