@@ -4,6 +4,8 @@ const session = require('express-session');
 const path = require('path');
 const fs = require('fs');
 const SecretManager = require('./utils/secret');
+const MongoDB = require('./utils/db');
+const MongoStore = require('connect-mongo');
 
 const app = express();
 const secretManager = new SecretManager();
@@ -49,10 +51,17 @@ loadSecrets().then(() => {
     app.set('views', path.join(__dirname, 'views'));
     app.use(express.urlencoded({ extended: true }));
     app.use(express.json());
+
+    // Configure session to use MongoDB
     app.use(session({
         secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: false,
+        store: MongoStore.create({
+            clientPromise: MongoDB.getClient(), // Use the existing MongoDB client
+            dbName: process.env.MONGODB_DATABASE,
+            collectionName: 'sessions'
+        }),
         cookie: { sameSite: 'strict' },
     }));
 
@@ -76,7 +85,4 @@ loadSecrets().then(() => {
     app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
     });
-}).catch(err => {
-    console.error('Failed to load secrets:', err);
-    process.exit(1);
 });

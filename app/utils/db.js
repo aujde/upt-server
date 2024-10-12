@@ -49,6 +49,10 @@ class MongoDB {
         const collection = await this.getCollection(collectionName);
         return collection.deleteOne(filter);
     }
+
+    async getClient() {
+        return connectToMongo();
+    }
 }
 
 const instance = new MongoDB();
