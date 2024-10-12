@@ -34,9 +34,8 @@ router.post('/register', (req, res) => {
     console.log('registering user:', username);
     const user = new GameUser();
     user.register(username, password, password2).then(() => {
-        req.session.success = 'Registered as ' + username;
-        req.session.user = user;
-        res.redirect('/game');
+        req.session.success = 'Registered user: ' + username;
+        res.redirect('/');
     }).catch(err => {
         req.session.error = err.message;
         res.redirect('/');
